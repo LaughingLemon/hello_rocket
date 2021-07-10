@@ -19,12 +19,20 @@ fn name_and_age_usize(name: &str, age: usize) -> String {
     format!("{} is {}", name, age)
 }
 
+//Everything else
+#[get("/<_..>", rank = 3)]
+fn everything_else() -> String {
+    format!("Default")
+}
+
+
 #[launch]
 fn rocket() -> Rocket<Build> {
     rocket::build().mount("/",
                           routes![index,
                           name_and_age_u8,
-                          name_and_age_usize])
+                          name_and_age_usize,
+                          everything_else])
 }
 
 //Note no "main" function.
