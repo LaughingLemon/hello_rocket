@@ -5,6 +5,8 @@ use std::fs;
 use rocket::form::Form;
 use rocket::response::content;
 use rocket::response::content::Html;
+use rocket_dyn_templates::Template;
+use std::collections::HashMap;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -41,10 +43,12 @@ struct Task<'r> {
 }
 
 #[post("/form", data = "<task>")]
-fn submit_form(task: Form<Task<'_>>) -> Html<String> {
-    content::Html(fs::read_to_string("accept.html").unwrap())
+fn submit_form(task: Form<Task<'_>>) -> Template {
+    let mut context = HashMap::new();
+    context.insert("fname", task.fname);
+    context.insert("lname", task.lname);
+    Template::render("accept", &context)
 }
-
 
 #[launch]
 fn rocket() -> Rocket<Build> {
@@ -55,6 +59,7 @@ fn rocket() -> Rocket<Build> {
                           everything_else,
                           get_form,
                           submit_form])
+        .attach(Template::fairing())
 }
 
 //Note no "main" function.
