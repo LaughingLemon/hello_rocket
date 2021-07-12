@@ -1,6 +1,10 @@
 #[macro_use] extern crate rocket;
 
 use rocket::{Build, Rocket};
+use std::fs;
+use rocket::form::Form;
+use rocket::response::content;
+use rocket::response::content::Html;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -25,6 +29,22 @@ fn everything_else() -> String {
     format!("Default")
 }
 
+#[get("/form")]
+fn get_form() -> Html<String> {
+    content::Html(fs::read_to_string("form.html").unwrap())
+}
+
+#[derive(FromForm)]
+struct Task<'r> {
+    fname: &'r str,
+    lname: &'r str,
+}
+
+#[post("/form", data = "<task>")]
+fn submit_form(task: Form<Task<'_>>) -> Html<String> {
+    content::Html(fs::read_to_string("accept.html").unwrap())
+}
+
 
 #[launch]
 fn rocket() -> Rocket<Build> {
@@ -32,7 +52,9 @@ fn rocket() -> Rocket<Build> {
                           routes![index,
                           name_and_age_u8,
                           name_and_age_usize,
-                          everything_else])
+                          everything_else,
+                          get_form,
+                          submit_form])
 }
 
 //Note no "main" function.
